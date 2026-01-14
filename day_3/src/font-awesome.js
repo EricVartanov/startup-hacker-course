@@ -1,6 +1,4 @@
-import * as solid from '@fortawesome/free-solid-svg-icons';
-import { library } from "@fortawesome/fontawesome-svg-core";
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faStar, faStarHalfStroke } from '@fortawesome/free-solid-svg-icons'
 
-library.add(
-    solid.faStar
-);
+library.add(faStar, faStarHalfStroke)
