@@ -1,58 +1,57 @@
 <template>
   <div class="app">
     <div class="container">
-      <button @click="isModalOpen = true" class="button">Добавить</button>
-      <div class="catalog">
-        <Card v-for="book in books" :key="book.title" :item="book" />
-      </div>
-    </div>
-    <div v-if="isModalOpen" class="modal">
-      <div class="modal-content">
-        <h2>Добавить книгу</h2>
-
-        <input
-            v-model="form.title"
-            placeholder="Название"
-        />
-
-        <textarea
-            v-model="form.description"
-            placeholder="Описание"
-        ></textarea>
-
-        <input
-            v-model="form.cover"
-            placeholder="Обложка (имя файла или URL)"
-        />
-
-        <select v-model="form.genre" multiple>
-          <option
-              v-for="genre in genresList"
-              :key="genre.value"
-              :value="genre.value"
-          >
-            {{ genre.label }}
-          </option>
-        </select>
-
-        <label class="checkbox">
-          <input type="checkbox" v-model="form.adult" />
-          18+
-        </label>
-
-        <div class="actions">
-          <button class="submit-btn" @click="submitForm">Сохранить</button>
-          <button class="cancel-btn" @click="isModalOpen = false">Отмена</button>
+      <div class="menu">
+        <div class="buttons">
+          <button class="button" @click="isAddOpen = true">Добавить</button>
+          <button class="button" @click="resetAllRatings">Сбросить весь рейтинг</button>
+        </div>
+        <div class="statistic">
+          <span>
+            Всего книг: <span class="value"> {{ books.length }} </span>
+          </span>
+          <span>
+            Средний рейтинг: <span class="value"> {{ averageRating }} </span>
+          </span>
         </div>
       </div>
+      <div class="catalog">
+        <Card
+            v-for="(book, index) in books"
+            :key="book.title"
+            :item="book"
+            :genreList="genresList"
+            @edit="openEdit(index)"
+        />
+      </div>
     </div>
+    <AddModal
+        v-if="isAddOpen"
+        :genresList="genresList"
+        @close="isAddOpen = false"
+        @submit="addBook"
+    />
+
+    <EditModal
+        v-if="isEditOpen && editedIndex !== null"
+        :genresList="genresList"
+        :item="books[editedIndex]"
+        @close="isEditOpen = false"
+        @submit="updateItem"
+        @delete="deleteItem"
+    />
   </div>
 </template>
 <script setup>
-import {ref, watch} from "vue";
+import {computed, ref} from "vue";
 import Card from "@/components/Card.vue";
+import AddModal from "@/components/AddModal.vue";
+import EditModal from "@/components/EditModal.vue";
 
-const isModalOpen = ref(false);
+const isAddOpen = ref(false)
+const isEditOpen = ref(false)
+const editedIndex = ref(null)
+
 const genresList = [
   { value: 'fantasy', label: 'Фэнтези' },
   { value: 'drama', label: 'Драма' },
@@ -63,40 +62,45 @@ const genresList = [
   { value: 'mystic', label: 'Мистика' },
 ]
 
-const form = ref({
-  title: '',
-  description: '',
-  cover: '',
-  genre: [],
-  adult: false,
-})
-
-const submitForm = () => {
-  console.log('New book:', form.value)
-  resetForm()
-  isModalOpen.value = false
+const addBook = (book) => {
+  books.value.push({ ...book, rating: 0 })
 }
 
-const resetForm = () => {
-  form.value = {
-    title: '',
-    description: '',
-    cover: '',
-    genre: [],
-    adult: false,
+const openEdit = (index) => {
+  editedIndex.value = index
+  isEditOpen.value = true
+}
+
+const deleteItem = () => {
+  books.value.splice(editedIndex.value, 1)
+  editedIndex.value = null
+}
+
+const updateItem = (updatedBook) => {
+  books.value[editedIndex.value] = {
+    ...books.value[editedIndex.value],
+    ...updatedBook
   }
 }
 
+const resetAllRatings = () => {
+  books.value = books.value.map(book => ({
+    ...book,
+    rating: 0
+  }))
+}
 
-watch(isModalOpen, (open) => {
-  document.body.style.overflow = open ? 'hidden' : ''
-})
+const averageRating = computed(
+    function () {
+      return (books.value.reduce((acc, book) => acc + book.rating, 0) / books.value.length).toFixed(2);
+    }
+)
 
 const books = ref([
   {
     title: 'Метро 2033',
     description: 'Постапокалиптический роман о выживании людей в московском метро после ядерной войны.',
-    genre: 'Постапокалипсис',
+    genre: ['postapocalypse'],
     cover: 'metro2033',
     adult: true,
     rating: 4.7
@@ -104,7 +108,7 @@ const books = ref([
   {
     title: 'Мастер и Маргарита',
     description: 'Мистический роман о добре и зле, любви и дьяволе в Москве 1930-х годов.',
-    genre: 'Роман, мистика',
+    genre: ['romance', 'mystic'],
     cover: 'master_margarete',
     adult: false,
     rating: 4.9
@@ -112,7 +116,7 @@ const books = ref([
   {
     title: 'American Psycho',
     description: 'Психологический триллер о двойной жизни успешного финансиста и серийного убийцы.',
-    genre: 'Триллер',
+    genre: ['thriller'],
     cover: 'american_psyho',
     adult: true,
     rating: 4.2
@@ -120,7 +124,7 @@ const books = ref([
   {
     title: 'Игра престолов',
     description: 'В мире Вестероса переплетаются политика, предательство, магия и судьбы множества героев. Книги известны своей реалистичностью, неожиданными поворотами и глубокой проработкой персонажей.',
-    genre: 'Фэнтези',
+    genre: ['fantasy'],
     cover: 'game_of_thrones',
     adult: true,
     rating: 4.7
@@ -142,22 +146,50 @@ const books = ref([
    max-width: 1200px;
    margin: 0 auto;
 
-   .button {
-     display: block;
-     margin: 0 auto;
-     margin-top: 20px;
-     padding: 10px 20px;
-     border-radius: 5px;
-     background-color: #2474F6;
-     color: #ffffff;
-     cursor: pointer;
-     border: 1px solid #ffffff;
+   .menu {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 50px;
 
-     &:hover {
-       transition: 0.3s;
-       background-color: #ffffff;
-       color: #2474F6;
-       border: 1px solid #2474F6;
+     .buttons {
+       display: flex;
+       gap: 20px;
+
+       .button {
+         cursor: pointer;
+         display: block;
+         padding: 10px 20px;
+         border-radius: 5px;
+         background-color: #2474F6;
+         color: #ffffff;
+         cursor: pointer;
+         border: 1px solid #ffffff;
+
+         &:hover {
+           transition: 0.3s;
+           background-color: #ffffff;
+           color: #2474F6;
+           border: 1px solid #2474F6;
+         }
+       }
+     }
+
+     .statistic {
+       border-left: 1px solid #282C34;
+       padding-left: 10px;
+       display: flex;
+       flex-direction: column;
+       align-items: flex-start;
+       justify-content: center;
+       font-size: 14px;
+       color: #282C34;
+       font-family: sans-serif;
+
+       .value {
+         font-weight: bold;
+         color: #2474F6;
+       }
      }
    }
 
@@ -170,81 +202,6 @@ const books = ref([
      justify-content: center;
      align-items: flex-start;
      gap: 20px;
-   }
- }
-
- .modal {
-   position: fixed;
-   inset: 0;
-   background: rgba(0,0,0,.4);
-   display: flex;
-   align-items: center;
-   justify-content: center;
-
-   h2{
-     text-align: center;
-     font-family: sans-serif;
-   }
- }
-
- .modal-content {
-   width: 420px;
-   background: #fff;
-   padding: 16px;
-   border-radius: 12px;
-   display: flex;
-   flex-direction: column;
-   gap: 10px;
- }
-
- .modal-content input,
- .modal-content textarea,
- .modal-content select {
-   width: 100%;
-   padding: 6px;
-   border-radius: 6px;
-   border: 1px solid #ccc;
- }
-
- .checkbox {
-   display: flex;
-   cursor: pointer;
-   flex-direction: row-reverse;
-   align-items: center;
-   justify-content: flex-end;
-   max-width: 100px;
-
-   input {
-     cursor: pointer;
-     width: 20px;
-   }
- }
-
- .actions {
-   display: flex;
-   margin-top: 20px;
-   justify-content: space-between;
-
-   button {
-     display: block;
-     padding: 8px 20px;
-     border-radius: 5px;
-     cursor: pointer;
-     color: #ffffff;
-     border: 1px solid #ffffff;
-
-     &:hover {
-       transition: 0.3s;
-       opacity: 0.8;
-     }
-   }
-
-   .submit-btn {
-     background-color: #2474F6;
-   }
-
-   .cancel-btn {
-     background-color: #f62424;
    }
  }
 </style>

@@ -1,19 +1,29 @@
 <script setup>
-import { ref } from "vue";
+import {computed, ref} from "vue";
 
-const { item } = defineProps({
-  item: {
-    type: Object,
-  }
+const emit = defineEmits(['edit'])
+
+const props = defineProps({
+  item: Object,
+  genreList: Array,
 })
 
-const currentRating = ref(item.rating ?? 0)
+const genreLabels = computed(() => {
+  const map = {}
+  for (const genre of props.genreList) {
+    map[genre.value] = genre.label
+  }
+  return props.item.genre.map(v => map[v]).join(', ')
+})
 
+const currentRating = computed(() => props.item.rating ?? 0)
+const userRating = ref(0)
 const hoverRating = ref(0)
 const setRating = (value) => {
+  if (userRating.value) return
+  userRating.value = value
   console.log('User rating:', value)
 }
-
 </script>
 
 <template>
@@ -23,6 +33,7 @@ const setRating = (value) => {
         :style="{ backgroundImage: `url(./assets/img/webp/${item.cover}.webp)` }"
     >
       <img class="adult" v-show="item.adult" src="/assets/img/png/adult18.png" alt="adult" />
+
       <div class="rating-wrapper">
         <FontAwesomeIcon
             class="rating-star"
@@ -36,7 +47,7 @@ const setRating = (value) => {
         {{ item.title }}
       </h3>
       <div class="genre">
-        {{ item.genre }}
+        {{ genreLabels }}
       </div>
       <p class="description">
         {{ item.description }}
@@ -46,13 +57,18 @@ const setRating = (value) => {
             v-for="i in 5"
             :key="i"
             class="star"
-            :class="{ active: i <= hoverRating }"
+            :class="{ active: i <= (userRating || hoverRating) }"
             :icon="['fas', 'star']"
-            @mouseenter="hoverRating = i"
-            @mouseleave="hoverRating = 0"
+            @mouseenter="!userRating && (hoverRating = i)"
+            @mouseleave="!userRating && (hoverRating = 0)"
             @click="setRating(i)"
         />
       </div>
+      <FontAwesomeIcon
+          class="edit-btn"
+          :icon="['fas', 'edit']"
+          @click.stop="emit('edit')"
+      />
     </div>
   </div>
 </template>
@@ -121,6 +137,7 @@ const setRating = (value) => {
     flex-direction: column;
     justify-content: flex-end;
     align-items: flex-start;
+    position: relative;
 
     .title {
       font-family: sans-serif;
@@ -172,6 +189,22 @@ const setRating = (value) => {
         &:hover {
           color: #FFD700;
         }
+      }
+    }
+
+    .edit-btn {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      font-size: 20px;
+      color: #769cea;
+      background: none;
+      border: none;
+      cursor: pointer;
+
+      &:hover {
+        transition: color 0.2s ease;
+        color: #2474f6;
       }
     }
   }
