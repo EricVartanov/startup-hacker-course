@@ -1,5 +1,7 @@
 <script setup>
-import { reactive, watch} from 'vue'
+import {computed, reactive, watch} from 'vue'
+import Multiselect from "vue-multiselect";
+import 'vue-multiselect/dist/vue-multiselect.css'
 
 const props = defineProps({
   modelValue: {
@@ -19,6 +21,17 @@ const emit = defineEmits([
 ])
 
 const form = reactive({ ...props.modelValue })
+
+const selectedGenres = computed({
+  get() {
+    return props.genresList.filter(g =>
+        form.genre.includes(g.value)
+    )
+  },
+  set(values) {
+    form.genre = values.map(v => v.value)
+  }
+})
 
 watch(
     form,
@@ -49,15 +62,19 @@ const submit = () => {
 
     <input v-model="form.cover" placeholder="Обложка" />
 
-    <select v-model="form.genre" multiple>
-      <option
-          v-for="genre in genresList"
-          :key="genre.value"
-          :value="genre.value"
-      >
-        {{ genre.label }}
-      </option>
-    </select>
+    <multiselect
+        v-model="selectedGenres"
+        :options="genresList"
+        track-by="value"
+        label="label"
+        :multiple="true"
+        :close-on-select="false"
+        placeholder="Выберите жанры"
+        select-label=""
+        deselect-label=""
+        selected-label=""
+        class="genre-multiselect"
+    />
 
     <label class="checkbox">
       <input type="checkbox" v-model="form.adult" />
@@ -70,7 +87,6 @@ const submit = () => {
     </div>
   </form>
 </template>
-
 
 <style scoped>
 h2{
@@ -89,9 +105,10 @@ h2{
   select {
     width: 100%;
     max-width: 400px;
-    padding: 6px;
+    padding: 2px 6px;
     border-radius: 6px;
-    border: 1px solid #ccc;
+    border: 1px solid #e8e8e8;
+    height: 36px;
   }
   .checkbox {
     display: flex;
@@ -100,6 +117,8 @@ h2{
     align-items: center;
     justify-content: flex-end;
     max-width: 100px;
+    font-weight: bold;
+    font-size: 18px;
 
     input {
       cursor: pointer;
@@ -134,5 +153,16 @@ h2{
       background-color: #f62424;
     }
   }
+
+  .genre-multiselect {
+    --accent: #2474f6;
+  }
+
+  .genre-multiselect :deep(.multiselect__tag),
+  .genre-multiselect :deep(.multiselect__option--highlight) {
+    background: var(--accent);
+  }
+
 }
+
 </style>
