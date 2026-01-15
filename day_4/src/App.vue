@@ -3,7 +3,9 @@
     <div class="container">
       <div class="menu">
         <div class="buttons">
-          <button class="button" @click="isAddOpen = true">Добавить</button>
+          <button class="button" @click="openAdd">
+            Добавить
+          </button>
           <button class="button" @click="resetAllRatings">Сбросить весь рейтинг</button>
         </div>
         <div class="statistic">
@@ -16,37 +18,39 @@
         </div>
       </div>
       <div class="catalog">
-        <Card
+        <BookCard
             v-for="(book, index) in books"
             :key="book.title"
-            :item="book"
+            :book
             :genreList="genresList"
             @edit="openEdit(index)"
+            @delete="handleDeleteBook"
         />
       </div>
     </div>
-    <AddModal
-        v-if="isAddOpen"
-        :genresList="genresList"
-        @close="isAddOpen = false"
-        @submit="addBook"
-    />
 
-    <EditModal
-        v-if="isEditOpen && editedIndex !== null"
-        :genresList="genresList"
-        :item="books[editedIndex]"
-        @close="isEditOpen = false"
-        @submit="updateItem"
-        @delete="deleteItem"
-    />
+    <Dialog
+        v-if="isAddOpen || isEditOpen"
+        @close="closeModal"
+    >
+      <template #title>
+        {{ isAddOpen ? 'Добавить книгу' : 'Редактировать книгу' }}
+      </template>
+
+      <BookForm
+          v-model="formBook"
+          :genresList="genresList"
+          @submit="handleSubmit"
+          @cancel="closeModal"
+      />
+    </Dialog>
   </div>
 </template>
 <script setup>
 import {computed, ref} from "vue";
-import Card from "@/components/Card.vue";
-import AddModal from "@/components/AddModal.vue";
-import EditModal from "@/components/EditModal.vue";
+import BookCard from "@/components/BookCard.vue";
+import Dialog from "@/components/Dialog.vue";
+import BookForm from "@/components/BookForm.vue";
 
 const isAddOpen = ref(false)
 const isEditOpen = ref(false)
@@ -62,27 +66,6 @@ const genresList = [
   { value: 'mystic', label: 'Мистика' },
 ]
 
-const addBook = (book) => {
-  books.value.push({ ...book, rating: 0 })
-}
-
-const openEdit = (index) => {
-  editedIndex.value = index
-  isEditOpen.value = true
-}
-
-const deleteItem = () => {
-  books.value.splice(editedIndex.value, 1)
-  editedIndex.value = null
-}
-
-const updateItem = (updatedBook) => {
-  books.value[editedIndex.value] = {
-    ...books.value[editedIndex.value],
-    ...updatedBook
-  }
-}
-
 const resetAllRatings = () => {
   books.value = books.value.map(book => ({
     ...book,
@@ -95,6 +78,61 @@ const averageRating = computed(
       return (books.value.reduce((acc, book) => acc + book.rating, 0) / books.value.length).toFixed(2);
     }
 )
+
+const modalType = computed(() =>
+    isAddOpen.value ? 'add' : 'edit'
+)
+
+const formBook = ref(getEmptyBook())
+
+function getEmptyBook() {
+  return {
+    title: '',
+    description: '',
+    genre: [],
+    cover: '',
+    adult: false
+  }
+}
+
+const openAdd = () => {
+  formBook.value = getEmptyBook()
+  isAddOpen.value = true
+}
+
+const openEdit = (index) => {
+  editedIndex.value = index
+  formBook.value = { ...books.value[index] }
+  isEditOpen.value = true
+}
+
+const closeModal = () => {
+  isAddOpen.value = false
+  isEditOpen.value = false
+  editedIndex.value = null
+  formBook.value = getEmptyBook()
+}
+
+const handleSubmit = (book) => {
+  if (modalType.value === 'add') {
+    books.value.push({
+      ...book,
+      rating: 0
+    })
+  } else {
+    books.value[editedIndex.value] = {
+      ...books.value[editedIndex.value],
+      ...book
+    }
+  }
+
+  closeModal()
+}
+
+const handleDeleteBook = () => {
+  books.value.splice(editedIndex.value, 1)
+  editedIndex.value = null
+}
 
 const books = ref([
   {
@@ -134,74 +172,74 @@ const books = ref([
 
 
 <style scoped>
- * {
-   box-sizing: border-box;
- }
+* {
+  box-sizing: border-box;
+}
 
- body {
-   background-color: rgb(228, 226, 223);
- }
+body {
+  background-color: rgb(228, 226, 223);
+}
 
- .container {
-   max-width: 1200px;
-   margin: 0 auto;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
 
-   .menu {
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     gap: 50px;
+  .menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
 
-     .buttons {
-       display: flex;
-       gap: 20px;
+    .buttons {
+      display: flex;
+      gap: 20px;
 
-       .button {
-         cursor: pointer;
-         display: block;
-         padding: 10px 20px;
-         border-radius: 5px;
-         background-color: #2474F6;
-         color: #ffffff;
-         cursor: pointer;
-         border: 1px solid #ffffff;
+      .button {
+        cursor: pointer;
+        display: block;
+        padding: 10px 20px;
+        border-radius: 5px;
+        background-color: #2474F6;
+        color: #ffffff;
+        cursor: pointer;
+        border: 1px solid #ffffff;
 
-         &:hover {
-           transition: 0.3s;
-           background-color: #ffffff;
-           color: #2474F6;
-           border: 1px solid #2474F6;
-         }
-       }
-     }
+        &:hover {
+          transition: 0.3s;
+          background-color: #ffffff;
+          color: #2474F6;
+          border: 1px solid #2474F6;
+        }
+      }
+    }
 
-     .statistic {
-       border-left: 1px solid #282C34;
-       padding-left: 10px;
-       display: flex;
-       flex-direction: column;
-       align-items: flex-start;
-       justify-content: center;
-       font-size: 14px;
-       color: #282C34;
-       font-family: sans-serif;
+    .statistic {
+      border-left: 1px solid #282C34;
+      padding-left: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      font-size: 14px;
+      color: #282C34;
+      font-family: sans-serif;
 
-       .value {
-         font-weight: bold;
-         color: #2474F6;
-       }
-     }
-   }
+      .value {
+        font-weight: bold;
+        color: #2474F6;
+      }
+    }
+  }
 
-   .catalog {
-     margin-top: 20px;
-     border-top: 1px solid rgb(228, 226, 223);
-     padding: 20px;
-     display: flex;
-     flex-wrap: wrap;
-     justify-content: center;
-     align-items: flex-start;
-     gap: 20px;
-   }
- }
+  .catalog {
+    margin-top: 20px;
+    border-top: 1px solid rgb(228, 226, 223);
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+  }
+}
 </style>

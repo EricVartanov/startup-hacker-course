@@ -1,10 +1,10 @@
 <script setup>
 import {computed, ref} from "vue";
 
-const emit = defineEmits(['edit'])
+const emit = defineEmits(['edit', 'delete'])
 
 const props = defineProps({
-  item: Object,
+  book: Object,
   genreList: Array,
 })
 
@@ -13,26 +13,29 @@ const genreLabels = computed(() => {
   for (const genre of props.genreList) {
     map[genre.value] = genre.label
   }
-  return props.item.genre.map(v => map[v]).join(', ')
+  return props.book.genre.map(v => map[v]).join(', ')
 })
 
-const currentRating = computed(() => props.item.rating ?? 0)
+const currentRating = computed(() => props.book.rating ?? 0)
 const userRating = ref(0)
 const hoverRating = ref(0)
+
+const rated = computed(() => userRating.value >= 1)
 const setRating = (value) => {
-  if (userRating.value) return
+  if (rated.value) return
   userRating.value = value
   console.log('User rating:', value)
 }
+
 </script>
 
 <template>
   <div class="card">
     <div
         class="cover"
-        :style="{ backgroundImage: `url(./assets/img/webp/${item.cover}.webp)` }"
+        :style="{ backgroundImage: `url(./assets/img/webp/${book.cover}.webp)` }"
     >
-      <img class="adult" v-show="item.adult" src="/assets/img/png/adult18.png" alt="adult" />
+      <img class="adult" v-show="book.adult" src="/assets/img/png/adult18.png" alt="adult" />
 
       <div class="rating-wrapper">
         <FontAwesomeIcon
@@ -44,31 +47,37 @@ const setRating = (value) => {
     </div>
     <div class="content">
       <h3 class="title">
-        {{ item.title }}
+        {{ book.title }}
       </h3>
       <div class="genre">
         {{ genreLabels }}
       </div>
       <p class="description">
-        {{ item.description }}
+        {{ book.description }}
       </p>
       <div class="stars">
         <FontAwesomeIcon
             v-for="i in 5"
             :key="i"
-            class="star"
-            :class="{ active: i <= (userRating || hoverRating) }"
+            :class="['star', { active: i <= (userRating || hoverRating) }, {disabled: rated}]"
             :icon="['fas', 'star']"
             @mouseenter="!userRating && (hoverRating = i)"
             @mouseleave="!userRating && (hoverRating = 0)"
             @click="setRating(i)"
         />
       </div>
-      <FontAwesomeIcon
-          class="edit-btn"
-          :icon="['fas', 'edit']"
-          @click.stop="emit('edit')"
-      />
+      <div class="actions">
+        <FontAwesomeIcon
+            class="edit-btn"
+            :icon="['fas', 'edit']"
+            @click.stop="emit('edit')"
+        />
+        <FontAwesomeIcon
+            class="del-btn"
+            :icon="['fas', 'trash']"
+            @click.stop="emit('delete')"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -186,25 +195,39 @@ const setRating = (value) => {
           color: #FFD700;
         }
 
-        &:hover {
-          color: #FFD700;
+        &.disabled {
+          cursor: not-allowed;
         }
       }
     }
 
-    .edit-btn {
+    .actions {
       position: absolute;
       bottom: 0;
       right: 0;
-      font-size: 20px;
-      color: #769cea;
-      background: none;
-      border: none;
-      cursor: pointer;
+      display: flex;
+      gap: 5px;
+      border-left: 1px solid rgba(78, 78, 78, 0.51);
+      padding-left: 3px;
 
-      &:hover {
-        transition: color 0.2s ease;
-        color: #2474f6;
+      .edit-btn {
+        color: #769cea;
+        cursor: pointer;
+
+        &:hover {
+          transition: color 0.2s ease;
+          color: #2474f6;
+        }
+      }
+
+      .del-btn {
+        color: rgba(246, 36, 36, 0.52);
+        cursor: pointer;
+
+        &:hover {
+          transition: color 0.2s ease;
+          color: #f62424;
+        }
       }
     }
   }
