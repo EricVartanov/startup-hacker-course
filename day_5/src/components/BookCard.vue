@@ -70,12 +70,12 @@ const setRating = (value) => {
         <FontAwesomeIcon
             class="edit-btn"
             :icon="['fas', 'edit']"
-            @click.stop="emit('edit')"
+            @click.stop="emit('edit', book.id)"
         />
         <FontAwesomeIcon
             class="del-btn"
             :icon="['fas', 'trash']"
-            @click.stop="emit('delete')"
+            @click.stop="emit('delete', book.id)"
         />
       </div>
     </div>

@@ -19,11 +19,11 @@
       </div>
       <div class="catalog">
         <BookCard
-            v-for="(book, index) in books"
-            :key="book.title"
+            v-for="(book) in books"
+            :key="book.id"
             :book
             :genreList="genresList"
-            @edit="openEdit(index)"
+            @edit="handleEditBook"
             @delete="handleDeleteBook"
         />
       </div>
@@ -51,10 +51,11 @@ import {computed, ref} from "vue";
 import BookCard from "@/components/BookCard.vue";
 import Dialog from "@/components/Dialog.vue";
 import BookForm from "@/components/BookForm.vue";
+import data from './books.json'
 
 const isAddOpen = ref(false)
 const isEditOpen = ref(false)
-const editedIndex = ref(null)
+const books = ref(data);
 
 const genresList = [
   { value: 'fantasy', label: 'Фэнтези' },
@@ -100,28 +101,29 @@ const openAdd = () => {
   isAddOpen.value = true
 }
 
-const openEdit = (index) => {
-  editedIndex.value = index
-  formBook.value = { ...books.value[index] }
+const handleEditBook = (id) => {
+  const book = books.value.find(book => book.id === id)
+  formBook.value = { ...book }
   isEditOpen.value = true
 }
 
 const closeModal = () => {
   isAddOpen.value = false
   isEditOpen.value = false
-  editedIndex.value = null
   formBook.value = getEmptyBook()
 }
 
-const handleSubmit = (book) => {
+const handleSubmit = (book) => { //todo переделать после бэка
   if (modalType.value === 'add') {
     books.value.push({
       ...book,
+      id: Date.now(), // на время
       rating: 0
     })
   } else {
-    books.value[editedIndex.value] = {
-      ...books.value[editedIndex.value],
+    const index = books.value.findIndex(b => b.id === book.id)
+    books.value[index] = {
+      ...books.value[index],
       ...book
     }
   }
@@ -129,45 +131,10 @@ const handleSubmit = (book) => {
   closeModal()
 }
 
-const handleDeleteBook = () => {
-  books.value.splice(editedIndex.value, 1)
-  editedIndex.value = null
+const handleDeleteBook = (id) => {
+  books.value = books.value.filter(book => book.id !== id)
 }
 
-const books = ref([
-  {
-    title: 'Метро 2033',
-    description: 'Постапокалиптический роман о выживании людей в московском метро после ядерной войны.',
-    genre: ['postapocalypse'],
-    cover: 'metro2033',
-    adult: true,
-    rating: 4.7
-  },
-  {
-    title: 'Мастер и Маргарита',
-    description: 'Мистический роман о добре и зле, любви и дьяволе в Москве 1930-х годов.',
-    genre: ['romance', 'mystic'],
-    cover: 'master_margarete',
-    adult: false,
-    rating: 4.9
-  },
-  {
-    title: 'American Psycho',
-    description: 'Психологический триллер о двойной жизни успешного финансиста и серийного убийцы.',
-    genre: ['thriller'],
-    cover: 'american_psyho',
-    adult: true,
-    rating: 4.2
-  },
-  {
-    title: 'Игра престолов',
-    description: 'В мире Вестероса переплетаются политика, предательство, магия и судьбы множества героев. Книги известны своей реалистичностью, неожиданными поворотами и глубокой проработкой персонажей.',
-    genre: ['fantasy'],
-    cover: 'game_of_thrones',
-    adult: true,
-    rating: 4.7
-  }
-])
 </script>
 
 
