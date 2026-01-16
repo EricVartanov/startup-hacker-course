@@ -38,13 +38,15 @@ watch(
     () => {
       emit('update:modelValue', { ...form })
     },
+    { deep: true }
 )
 
 watch(
     () => props.modelValue,
     (value) => {
       Object.assign(form, value)
-    }
+    },
+    { deep: true }
 )
 
 const submit = () => {
@@ -82,7 +84,7 @@ const submit = () => {
     </label>
 
     <div class="actions">
-      <button class="submit-btn" @click="submit">Сохранить</button>
+      <button class="submit-btn">Сохранить</button>
       <button class="cancel-btn" @click="$emit('cancel')">Отмена</button>
     </div>
   </form>
