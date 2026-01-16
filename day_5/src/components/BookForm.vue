@@ -1,7 +1,8 @@
 <script setup>
-import {computed, reactive, watch} from 'vue'
+import {computed, nextTick, reactive, useTemplateRef, watch} from 'vue'
 import Multiselect from "vue-multiselect";
 import 'vue-multiselect/dist/vue-multiselect.css'
+import {debounce} from "lodash/function";
 
 const props = defineProps({
   modelValue: {
@@ -11,7 +12,7 @@ const props = defineProps({
   genresList: {
     type: Array,
     required: true
-  }
+  },
 })
 
 const emit = defineEmits([
@@ -19,8 +20,26 @@ const emit = defineEmits([
   'submit',
   'cancel'
 ])
+const form = reactive({...props.modelValue})
 
-const form = reactive({ ...props.modelValue })
+watch(
+    () => props.modelValue,
+    (value) => {
+      Object.assign(form, value)
+    },
+    { deep: true }
+)
+
+// фокус на инпут имени
+const nameInput = useTemplateRef('name-input')
+watch(
+    () => props.modelValue,
+    async () => {
+      await nextTick()
+      nameInput.value.focus()
+    }
+)
+// фокус на инпут имени
 
 const selectedGenres = computed({
   get() {
@@ -33,32 +52,36 @@ const selectedGenres = computed({
   }
 })
 
+
+//знаю костыльно, но не понимаю как решить вопрос с вочерами на форму,
+let firstInit = true
+//задание 5 дня
 watch(
-    form,
-    () => {
-      emit('update:modelValue', { ...form })
+    () => form.title,
+    (newValue) => {
+      if (firstInit) {
+        firstInit = false
+        return
+      }
+      sendTitleToServer(newValue)
     },
-    { deep: true }
 )
 
-watch(
-    () => props.modelValue,
-    (value) => {
-      Object.assign(form, value)
-    },
-    { deep: true }
-)
+const sendTitleToServer = debounce((value) => {
+  console.log(`Отправили ${value} на сервер`)
+}, 500)
+
 
 const submit = () => {
+  emit('update:modelValue', { ...form })
   emit('submit', { ...form })
 }
-
 </script>
 
 
 <template>
   <form class="form" @submit.prevent="submit">
-    <input v-model="form.title" placeholder="Название" />
+    <input v-model="form.title" placeholder="Название" ref="name-input" />
 
     <textarea v-model="form.description" placeholder="Описание" />
 
@@ -84,7 +107,7 @@ const submit = () => {
     </label>
 
     <div class="actions">
-      <button class="submit-btn" @click="submit">Сохранить</button>
+      <button class="submit-btn">Сохранить</button>
       <button class="cancel-btn" @click="$emit('cancel')">Отмена</button>
     </div>
   </form>

@@ -1,6 +1,6 @@
 <script setup>
-defineProps({
-  modelValue: {
+const props = defineProps({
+  isModalOpen: {
     type: Boolean,
     required: true
   }
@@ -12,13 +12,13 @@ const emit = defineEmits(['close'])
 <template>
   <Transition name="fade">
     <div
-        v-show="modelValue"
+        v-show="isModalOpen"
         class="dialog-overlay"
         @click.self="$emit('close')"
     >
       <Transition name="fade-slide">
         <div
-            v-show="modelValue"
+            v-show="isModalOpen"
             class="dialog"
         >
           <h2 class="dialog-header">

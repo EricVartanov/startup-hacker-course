@@ -29,7 +29,7 @@
       </div>
     </div>
     <Dialog
-        v-model="isModalOpen"
+        :isModalOpen="isModalOpen"
         @close="closeModal"
     >
       <template #title>
