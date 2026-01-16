@@ -38,13 +38,15 @@ watch(
     () => {
       emit('update:modelValue', { ...form })
     },
+    { deep: true }
 )
 
 watch(
     () => props.modelValue,
     (value) => {
       Object.assign(form, value)
-    }
+    },
+    { deep: true }
 )
 
 const submit = () => {
@@ -95,7 +97,8 @@ h2{
 }
 
 .form {
-  width: 420px;
+  max-width: 420px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -103,8 +106,6 @@ h2{
   input,
   textarea,
   select {
-    width: 100%;
-    max-width: 400px;
     padding: 2px 6px;
     border-radius: 6px;
     border: 1px solid #e8e8e8;

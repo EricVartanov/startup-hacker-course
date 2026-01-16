@@ -28,9 +28,8 @@
         />
       </div>
     </div>
-
     <Dialog
-        v-if="isAddOpen || isEditOpen"
+        v-model="isModalOpen"
         @close="closeModal"
     >
       <template #title>
@@ -80,6 +79,8 @@ const averageRating = computed(
     }
 )
 
+const isModalOpen = computed(() => isAddOpen.value || isEditOpen.value)
+
 const modalType = computed(() =>
     isAddOpen.value ? 'add' : 'edit'
 )
@@ -110,22 +111,23 @@ const handleEditBook = (id) => {
 const closeModal = () => {
   isAddOpen.value = false
   isEditOpen.value = false
-  formBook.value = getEmptyBook()
 }
 
-const handleSubmit = (book) => { //todo переделать после бэка
+const handleSubmit = (data) => { //todo переделать после бэка
   if (modalType.value === 'add') {
     books.value.push({
-      ...book,
+      ...data,
       id: Date.now(), // на время
       rating: 0
     })
   } else {
-    const index = books.value.findIndex(b => b.id === book.id)
-    books.value[index] = {
-      ...books.value[index],
-      ...book
-    }
+    books.value = books.value.map((book) => {
+      if (book.id === data.id) {
+        data.rating = book.rating;
+        return data;
+      }
+      return book;
+    });
   }
 
   closeModal()
