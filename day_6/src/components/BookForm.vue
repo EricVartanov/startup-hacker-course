@@ -103,13 +103,6 @@ watch(
     },
 )
 
-watch(
-    () => form.cover,
-    (newValue) => {
-      console.log(newValue)
-    },
-)
-
 const sendTitleToServer = debounce((value) => {
   console.log(`Отправили ${value} на сервер`)
 }, 500)
