@@ -2,10 +2,12 @@
   <div class="container">
     <div class="menu">
       <div class="buttons">
-        <button class="button" @click="openAdd">
+        <SButton color="green" class="button_blue" @click="openAdd">
           Добавить
-        </button>
-        <button class="button" @click="resetAllRatings">Сбросить весь рейтинг</button>
+        </SButton>
+        <SButton color="green" outlined class="button_blue" @click="resetAllRatings">
+          Сбросить весь рейтинг
+        </SButton>
       </div>
       <div class="statistic">
           <span>
@@ -27,28 +29,27 @@
       />
     </div>
   </div>
-  <Dialog
-      :isModalOpen="isModalOpen"
-      @close="closeModal"
+  <SDialog
+      v-model="isModalOpen"
+      :title="isAddOpen ? 'Добавить книгу' : 'Редактировать книгу'"
+      width="500px"
   >
-    <template #title>
-      {{ isAddOpen ? 'Добавить книгу' : 'Редактировать книгу' }}
-    </template>
     <BookForm
         v-model="formBook"
+        v-if="isModalOpen"
         :genresList="genresList"
         @submit="handleSubmit"
         @cancel="closeModal"
     />
-  </Dialog>
+  </SDialog>
 </template>
 
 <script setup>
 import BookForm from "@/components/BookForm.vue";
-import Dialog from "@/components/Dialog.vue";
 import BookCard from "@/components/BookCard.vue";
 import data from '../books.json'
-import {computed, ref} from "vue";
+import {computed, ref, watch} from "vue";
+import {SButton, SDialog} from "startup-ui";
 
 const genresList = [
   {value: 'fantasy', label: 'Фэнтези'},
@@ -78,13 +79,29 @@ const averageRating = computed(
     }
 )
 
+const isModalOpen = computed({
+  get() {
+    return isAddOpen.value || isEditOpen.value
+  },
+  set(value) {
+    if (!value) {
+      closeModal()
+    }
+  }
+})
 
-const isModalOpen = computed(() => isAddOpen.value || isEditOpen.value)
+// для моб версии может ломать. Проверить.
+watch(isModalOpen, (isOpen) => {
+  if (isOpen) {
+    document.body.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = ''
+  }
+})
 
 const modalType = computed(() =>
     isAddOpen.value ? 'add' : 'edit'
 )
-
 
 const formBook = ref(getEmptyBook())
 
@@ -97,7 +114,6 @@ function getEmptyBook() {
     adult: false
   }
 }
-
 
 const openAdd = () => {
   formBook.value = getEmptyBook()
@@ -155,24 +171,6 @@ const handleDeleteBook = (id) => {
     .buttons {
       display: flex;
       gap: 20px;
-
-      .button {
-        cursor: pointer;
-        display: block;
-        padding: 10px 20px;
-        border-radius: 5px;
-        background-color: #2474F6;
-        color: #ffffff;
-        cursor: pointer;
-        border: 1px solid #ffffff;
-
-        &:hover {
-          transition: 0.3s;
-          background-color: #ffffff;
-          color: #2474F6;
-          border: 1px solid #2474F6;
-        }
-      }
     }
 
     .statistic {
@@ -188,7 +186,7 @@ const handleDeleteBook = (id) => {
 
       .value {
         font-weight: bold;
-        color: #2474F6;
+        color: var(--s-green);
       }
     }
   }
@@ -204,4 +202,38 @@ const handleDeleteBook = (id) => {
   align-items: flex-start;
   gap: 20px;
 }
+
+/* overlay */
+.s-dialog-background {
+  opacity: 0;
+  animation: fadeIn 0.25s forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* dialog card */
+.s-dialog-window {
+  transform: translateY(20px);
+  opacity: 0;
+  animation: slideUp 0.3s forwards;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 </style>

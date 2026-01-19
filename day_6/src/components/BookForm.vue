@@ -1,8 +1,44 @@
+<template>
+  <SForm class="form" v-model="form" @submit="submit" method="post" action="/users/login">
+    <SFormRow name="title">
+      <SInput placeholder="Название" ref="name-input" autofocus/>
+    </SFormRow>
+    <SFormRow name="description">
+      <SInput type="textarea" placeholder="Описание"/>
+    </SFormRow>
+    <SFormRow name="cover">
+      <SInput placeholder="Обложка"/>
+    </SFormRow>
+    <multiselect
+        v-model="selectedGenres"
+        :options="genresList"
+        track-by="value"
+        label="label"
+        :multiple="true"
+        :close-on-select="false"
+        placeholder="Выберите жанры"
+        select-label=""
+        deselect-label=""
+        selected-label=""
+        class="genre-multiselect"
+        open-direction="bottom"
+    />
+    <SFormRow name="adult">
+      <SCheckbox v-model="form.adult">18+</SCheckbox>
+    </SFormRow>
+    <div class="actions">
+      <SButton class="submit-btn" color="green">Сохранить</SButton>
+      <SButton class="cancel-btn" color="red" @click="$emit('cancel')">Отмена</SButton>
+    </div>
+  </SForm>
+</template>
+
 <script setup>
-import {computed, nextTick, reactive, useTemplateRef, watch} from 'vue'
+import {computed, nextTick, onMounted, reactive, useTemplateRef, watch} from 'vue'
 import Multiselect from "vue-multiselect";
 import 'vue-multiselect/dist/vue-multiselect.css'
 import {debounce} from "lodash/function";
+import {SButton, SCheckbox, SForm, SFormRow, SInput} from "startup-ui";
 
 const props = defineProps({
   modelValue: {
@@ -30,16 +66,16 @@ watch(
     {deep: true}
 )
 
-// фокус на инпут имени
 const nameInput = useTemplateRef('name-input')
-watch(
-    () => props.modelValue,
-    async () => {
-      await nextTick()
-      nameInput.value.focus()
-    }
-)
-// фокус на инпут имени
+
+const focusNameInput = async () => {
+  await nextTick()
+  nameInput.value?.$el?.querySelector('input')?.focus()
+}
+
+onMounted(() => {
+  focusNameInput()
+})
 
 const selectedGenres = computed({
   get() {
@@ -78,116 +114,41 @@ const submit = () => {
 }
 </script>
 
-
-<template>
-  <form class="form" @submit.prevent="submit">
-    <input v-model="form.title" placeholder="Название" ref="name-input"/>
-
-    <textarea v-model="form.description" placeholder="Описание"/>
-
-    <input v-model="form.cover" placeholder="Обложка"/>
-
-    <multiselect
-        v-model="selectedGenres"
-        :options="genresList"
-        track-by="value"
-        label="label"
-        :multiple="true"
-        :close-on-select="false"
-        placeholder="Выберите жанры"
-        select-label=""
-        deselect-label=""
-        selected-label=""
-        class="genre-multiselect"
-    />
-
-    <label class="checkbox">
-      <input type="checkbox" v-model="form.adult"/>
-      18+
-    </label>
-
-    <div class="actions">
-      <button class="submit-btn">Сохранить</button>
-      <button class="cancel-btn" @click="$emit('cancel')">Отмена</button>
-    </div>
-  </form>
-</template>
-
-<style scoped>
-h2 {
-  text-align: center;
-  font-family: sans-serif;
-}
-
+<style>
 .form {
-  max-width: 420px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  input,
-  textarea,
-  select {
-    padding: 2px 6px;
-    border-radius: 6px;
-    border: 1px solid #e8e8e8;
-    height: 36px;
-  }
-
-  .checkbox {
-    display: flex;
-    cursor: pointer;
-    flex-direction: row-reverse;
-    align-items: center;
-    justify-content: flex-end;
-    max-width: 100px;
-    font-weight: bold;
-    font-size: 18px;
-
-    input {
-      cursor: pointer;
-      width: 20px;
-    }
-  }
-
   .actions {
     display: flex;
     margin-top: 20px;
     justify-content: space-between;
 
     button {
-      display: block;
-      padding: 8px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      color: #ffffff;
-      border: 1px solid #ffffff;
-
       &:hover {
         transition: 0.3s;
-        opacity: 0.8;
+        opacity: 0.5;
       }
     }
-
-    .submit-btn {
-      background-color: #2474F6;
-    }
-
-    .cancel-btn {
-      background-color: #f62424;
-    }
   }
-
-  .genre-multiselect {
-    --accent: #2474f6;
-  }
-
-  .genre-multiselect :deep(.multiselect__tag),
-  .genre-multiselect :deep(.multiselect__option--highlight) {
-    background: var(--accent);
-  }
-
 }
 
+</style>
+
+<style scoped>
+.genre-multiselect :deep(.multiselect__tag) {
+  background: var(--s-green);
+  color: var(--s-white);
+}
+
+.genre-multiselect :deep(.multiselect__option--highlight) {
+  background: var(--s-green);
+  color: var(--s-white);
+}
+
+.genre-multiselect :deep(.multiselect__option--selected) {
+  background: rgba(0, 128, 0, 0.15);
+  color: var(--s-black);
+}
+
+.genre-multiselect :deep(.multiselect__tag-icon:hover) {
+  background: #0f8f3a;
+}
 </style>

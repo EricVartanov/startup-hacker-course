@@ -1,6 +1,7 @@
 <template>
   <div class="app">
     <header class="header">
+      <!--    //не стал использовать меню, из StartupID, чтобы не противоречить первому заданию-->
       <nav class="header-nav">
         <RouterLink class="header-nav-link" to="/">Домой</RouterLink>
         <RouterLink class="header-nav-link" to="/about-us">О Нас</RouterLink>
@@ -20,7 +21,7 @@
 </script>
 
 
-<style scoped>
+<style>
 * {
   box-sizing: border-box;
 }
@@ -30,6 +31,10 @@ body {
   margin: 0 !important;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+}
+
 .header {
   padding: 1rem;
   border-bottom: 1px solid black;
@@ -37,7 +42,7 @@ body {
 
   .header-nav {
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
     gap: 1rem;
     font-family: sans-serif;
     font-size: 1.2rem;
@@ -45,11 +50,11 @@ body {
 
     .header-nav-link {
       text-decoration: none;
-      color: rgb(36, 116, 246);
+      color: var(--s-green);
 
       &:hover {
         transition: 0.3s;
-        color: rgb(18, 18, 18);
+        color: var(--s-black);
       }
     }
   }

@@ -1,4 +1,4 @@
-import { library } from '@fortawesome/fontawesome-svg-core'
-import {faStar, faStarHalfStroke, faEdit, faTrash} from '@fortawesome/free-solid-svg-icons'
+import {library} from '@fortawesome/fontawesome-svg-core'
+import {faCheck, faEdit, faStar, faStarHalfStroke, faTrash, faXmark} from '@fortawesome/free-solid-svg-icons'
 
-library.add(faStar, faStarHalfStroke, faEdit, faTrash)
+library.add(faStar, faStarHalfStroke, faEdit, faTrash, faXmark, faCheck)
