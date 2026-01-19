@@ -22,18 +22,17 @@ const emit = defineEmits(['close'])
             class="dialog"
         >
           <h2 class="dialog-header">
-            <slot name="title" />
+            <slot name="title"/>
           </h2>
 
           <div class="dialog-content">
-            <slot />
+            <slot/>
           </div>
         </div>
       </Transition>
     </div>
   </Transition>
 </template>
-
 
 
 <style>
@@ -62,7 +61,6 @@ const emit = defineEmits(['close'])
 }
 
 
-
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s ease;
@@ -80,9 +78,8 @@ const emit = defineEmits(['close'])
 
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition:
-      opacity 0.5s ease,
-      transform 0.5s ease;
+  transition: opacity 0.5s ease,
+  transform 0.5s ease;
 }
 
 .fade-slide-enter-from,

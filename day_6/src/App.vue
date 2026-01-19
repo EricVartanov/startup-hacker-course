@@ -57,13 +57,13 @@ const isEditOpen = ref(false)
 const books = ref(data);
 
 const genresList = [
-  { value: 'fantasy', label: 'Фэнтези' },
-  { value: 'drama', label: 'Драма' },
-  { value: 'romance', label: 'Роман' },
-  { value: 'horror', label: 'Хоррор' },
-  { value: 'thriller', label: 'Триллер' },
-  { value: 'postapocalypse', label: 'Постапокалипсис' },
-  { value: 'mystic', label: 'Мистика' },
+  {value: 'fantasy', label: 'Фэнтези'},
+  {value: 'drama', label: 'Драма'},
+  {value: 'romance', label: 'Роман'},
+  {value: 'horror', label: 'Хоррор'},
+  {value: 'thriller', label: 'Триллер'},
+  {value: 'postapocalypse', label: 'Постапокалипсис'},
+  {value: 'mystic', label: 'Мистика'},
 ]
 
 const resetAllRatings = () => {
@@ -104,7 +104,7 @@ const openAdd = () => {
 
 const handleEditBook = (id) => {
   const book = books.value.find(book => book.id === id)
-  formBook.value = { ...book }
+  formBook.value = {...book}
   isEditOpen.value = true
 }
 

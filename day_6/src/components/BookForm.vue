@@ -27,7 +27,7 @@ watch(
     (value) => {
       Object.assign(form, value)
     },
-    { deep: true }
+    {deep: true}
 )
 
 // фокус на инпут имени
@@ -73,19 +73,19 @@ const sendTitleToServer = debounce((value) => {
 
 
 const submit = () => {
-  emit('update:modelValue', { ...form })
-  emit('submit', { ...form })
+  emit('update:modelValue', {...form})
+  emit('submit', {...form})
 }
 </script>
 
 
 <template>
   <form class="form" @submit.prevent="submit">
-    <input v-model="form.title" placeholder="Название" ref="name-input" />
+    <input v-model="form.title" placeholder="Название" ref="name-input"/>
 
-    <textarea v-model="form.description" placeholder="Описание" />
+    <textarea v-model="form.description" placeholder="Описание"/>
 
-    <input v-model="form.cover" placeholder="Обложка" />
+    <input v-model="form.cover" placeholder="Обложка"/>
 
     <multiselect
         v-model="selectedGenres"
@@ -102,7 +102,7 @@ const submit = () => {
     />
 
     <label class="checkbox">
-      <input type="checkbox" v-model="form.adult" />
+      <input type="checkbox" v-model="form.adult"/>
       18+
     </label>
 
@@ -114,7 +114,7 @@ const submit = () => {
 </template>
 
 <style scoped>
-h2{
+h2 {
   text-align: center;
   font-family: sans-serif;
 }
@@ -134,6 +134,7 @@ h2{
     border: 1px solid #e8e8e8;
     height: 36px;
   }
+
   .checkbox {
     display: flex;
     cursor: pointer;

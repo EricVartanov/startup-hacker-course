@@ -35,7 +35,7 @@ const setRating = (value) => {
         class="cover"
         :style="{ backgroundImage: `url(./assets/img/webp/${book.cover}.webp)` }"
     >
-      <img class="adult" v-show="book.adult" src="/assets/img/png/adult18.png" alt="adult" />
+      <img class="adult" v-show="book.adult" src="/assets/img/png/adult18.png" alt="adult"/>
 
       <div class="rating-wrapper">
         <FontAwesomeIcon
@@ -89,7 +89,7 @@ const setRating = (value) => {
   padding: 16px;
   border-radius: 16px;
   background: #fff;
-  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
   cursor: pointer;
 
   .cover {
@@ -118,7 +118,7 @@ const setRating = (value) => {
       height: 35px;
     }
 
-    .rating-star{
+    .rating-star {
       width: 35px;
       height: 35px;
       color: #FFD700;
