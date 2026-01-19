@@ -6,9 +6,6 @@
     <SFormRow name="description">
       <SInput type="textarea" placeholder="Описание"/>
     </SFormRow>
-    <SFormRow name="cover">
-      <SInput placeholder="Обложка"/>
-    </SFormRow>
     <multiselect
         v-model="selectedGenres"
         :options="genresList"
@@ -23,6 +20,9 @@
         class="genre-multiselect"
         open-direction="bottom"
     />
+    <SFormRow name="cover">
+      <SUpload v-model="form.cover" upload-button-title="Выбрать обложку"/>
+    </SFormRow>
     <SFormRow name="adult">
       <SCheckbox v-model="form.adult">18+</SCheckbox>
     </SFormRow>
@@ -38,7 +38,7 @@ import {computed, nextTick, onMounted, reactive, useTemplateRef, watch} from 'vu
 import Multiselect from "vue-multiselect";
 import 'vue-multiselect/dist/vue-multiselect.css'
 import {debounce} from "lodash/function";
-import {SButton, SCheckbox, SForm, SFormRow, SInput} from "startup-ui";
+import {SButton, SCheckbox, SForm, SFormRow, SInput, SUpload} from "startup-ui";
 
 const props = defineProps({
   modelValue: {
@@ -100,6 +100,13 @@ watch(
         return
       }
       sendTitleToServer(newValue)
+    },
+)
+
+watch(
+    () => form.cover,
+    (newValue) => {
+      console.log(newValue)
     },
 )
 
