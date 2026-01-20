@@ -16,6 +16,18 @@
             :label="pluralize(number, labels[key])"
         />
       </div>
+      <div v-show="isTimeOver">
+        <iframe
+            width="320"
+            height="200"
+            src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&start=43"
+            title="YouTube video player"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen>
+        </iframe>
+      </div>
     </div>
   </div>
 </template>
@@ -89,8 +101,8 @@ const pluralize = (value, forms) => {
   align-items: center;
 
   .s-timerbox {
-    width: 400px;
-    height: 200px;
+    max-width: 450px;
+    height: auto;
     display: flex;
     flex-direction: column;
     justify-content: center;
