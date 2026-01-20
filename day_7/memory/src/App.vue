@@ -31,6 +31,11 @@
             @click="flipCard(card)"
         />
       </div>
+      <SDialog v-model="isGameFinished" title="Игра завершена!">
+        <p>Результат: {{ gameResult.label }}</p>
+        <p>Ходов: {{ moves }}</p>
+        <p>Время: {{ formattedTime }}</p>
+      </SDialog>
     </div>
   </div>
 </template>
@@ -38,7 +43,7 @@
 <script setup>
 import {computed, onMounted, ref, watch} from 'vue'
 import Card from '@/components/Card.vue'
-import {SButton, SStat} from "startup-ui";
+import {SButton, SDialog, SStat} from "startup-ui";
 
 const levels = {
   beginner: {
@@ -68,6 +73,9 @@ const lockBoard = ref(false)
 const chosenLevelKey = ref('expert')
 const chosenLevel = computed(() => levels[chosenLevelKey.value])
 
+const isGameFinished = ref(false)
+
+
 onMounted(() => {
   initGame()
 })
@@ -82,6 +90,8 @@ function changeLevel(levelKey) {
 
 
 function initGame() {
+  isGameFinished.value = false
+
   const pairs = chosenLevel.value.cards / 2
   let id = 1
   const numbers = []
@@ -180,8 +190,10 @@ const formattedTime = computed(() => {
 watch(remainingCards, value => {
   if (value === 0 && cards.value.length) {
     stopTimer()
+    isGameFinished.value = true
   }
 })
+
 
 const gridStyle = computed(() => {
   const total = chosenLevel.value.cards
@@ -200,12 +212,35 @@ const gridStyle = computed(() => {
     }
   }
 
-  // 36 (эксперт)
+  // 36
   return {
     gridTemplateColumns: 'repeat(6, 1fr)',
     gridTemplateRows: 'repeat(6, 1fr)',
   }
 })
+
+const gameResult = computed(() => {
+  if (!isGameFinished.value) return null
+
+  const pairs = chosenLevel.value.cards / 2
+  const minMoves = pairs
+  const m = moves.value
+
+  if (m <= minMoves * 1.5) {
+    return {label: '⭐⭐⭐ Отлично', class: 'excellent'}
+  }
+
+  if (m <= minMoves * 2) {
+    return {label: '⭐⭐ Хорошо', class: 'good'}
+  }
+
+  if (m <= minMoves * 3) {
+    return {label: '⭐ Нормально', class: 'ok'}
+  }
+
+  return {label: '😬 Плохо', class: 'bad'}
+})
+
 
 </script>
 
