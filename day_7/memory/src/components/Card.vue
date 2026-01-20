@@ -63,7 +63,7 @@ function handleClick() {
     justify-content: center;
     border-radius: 6px;
     font-size: 2rem;
-    //backface-visibility: hidden;
+    backface-visibility: hidden;
 
     &_front {
       background: var(--s-yellow);
