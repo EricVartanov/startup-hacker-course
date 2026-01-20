@@ -1,4 +1,5 @@
-import { createApp } from "vue";
-import App from "./App.vue";
-import "./css/style.scss";
-createApp(App).mount("#app");
+import {createApp} from 'vue'
+import App from './App.vue'
+import Countdown from 'vue3-flip-countdown'
+
+createApp(App).use(Countdown).mount('#app')
